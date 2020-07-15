@@ -130,7 +130,9 @@ class Transform(base_component.BaseComponent):
       example_artifact.split_names = artifact_utils.encode_split_names(
           artifact.DEFAULT_EXAMPLE_SPLITS)
       transformed_examples = types.Channel(
-          type=standard_artifacts.Examples, artifacts=[example_artifact])
+          type=standard_artifacts.Examples,
+          artifacts=[example_artifact],
+          matching_channel_name='examples')
     spec = TransformSpec(
         examples=examples,
         schema=schema,

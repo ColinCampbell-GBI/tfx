@@ -18,16 +18,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import copy
 import inspect
 import json
-
 from typing import Any, Dict, Iterable, Optional, Text, Type
 
-from google.protobuf import json_format
-from ml_metadata.proto import metadata_store_pb2
 from tfx.types import artifact_utils
 from tfx.types.artifact import Artifact
 from tfx.utils import json_utils
+from google.protobuf import json_format
+from ml_metadata.proto import metadata_store_pb2
 
 
 class Channel(json_utils.Jsonable):
@@ -46,6 +46,7 @@ class Channel(json_utils.Jsonable):
       self,
       type: Optional[Type[Artifact]] = None,  # pylint: disable=redefined-builtin
       artifacts: Optional[Iterable[Artifact]] = None,
+      matching_channel_name: Optional[Text] = None,
       producer_component_id: Optional[Text] = None,
       output_key: Optional[Text] = None):
     """Initialization of Channel.
@@ -54,6 +55,10 @@ class Channel(json_utils.Jsonable):
       type: Subclass of Artifact that represents the type of this Channel.
       artifacts: (Optional) A collection of artifacts as the values that can be
         read from the Channel. This is used to construct a static Channel.
+      matching_channel_name: the artifacts count of this channel should match
+        the artifacts count of the input channel specified by
+        matching_channel_name. When this is provided, `artifacts` must contain
+        one single artifact.
       producer_component_id: (Optional) Producer component id of the Channel.
       output_key: (Optional) The output key when producer component produces
         the artifacts in this Channel.
@@ -65,6 +70,10 @@ class Channel(json_utils.Jsonable):
 
     self.type = type
     self._artifacts = artifacts or []
+    self.matching_channel_name = matching_channel_name
+    if self.matching_channel_name and len(self._artifacts) != 1:
+      raise ValueError(
+          '`artifacts` size should be 1 when `matching_channel_name` is set.')
     self._validate_type()
     # The following fields will be populated during compilation time.
     self.producer_component_id = producer_component_id
@@ -85,6 +94,11 @@ class Channel(json_utils.Jsonable):
         raise ValueError(
             "Artifacts provided do not match Channel's artifact type {}".format(
                 self.type_name))
+
+  def match_count(self, count: int) -> None:
+    """Update artifacts to match the count of target channel."""
+    artifact = self._artifacts[0]
+    self._artifacts = [copy.deepcopy(artifact) for _ in range(count)]
 
   def get(self) -> Iterable[Artifact]:
     """Returns all artifacts that can be get from this Channel.
