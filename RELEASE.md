@@ -7,8 +7,7 @@
 *   Changed Span information as a property of ExampleGen's output artifact.
     Deprecated ExampleGen input (external) artifact.
 *   Added ModelRun artifact for Trainer for storing training related files,
-    e.g., Tensorboard logs. Trainer's Model artifact now only contain pure
-    models (check utils/path_utils.py for details).
+    e.g., Tensorboard logs.
 *   Added support for `tf.train.SequenceExample` in ExampleGen:
     *   ImportExampleGen now supports `tf.train.SequenceExample` importing.
     *   base_example_gen_executor now supports `tf.train.SequenceExample` as
@@ -33,7 +32,6 @@
 *   Used thread local storage for `label_utils.scoped_labels()` to make it
     thread safe.
 *   Stopped requiring `avro-python3`.
-*   Requires [Bazel](https://bazel.build/) to build TFX source code.
 
 ## Breaking changes
 
