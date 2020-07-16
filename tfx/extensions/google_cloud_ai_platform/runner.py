@@ -259,10 +259,11 @@ def deploy_model_for_aip_prediction(
   default_runtime_version = _get_tf_runtime_version(tf.__version__)
   runtime_version = ai_platform_serving_args.get('runtime_version',
                                                  default_runtime_version)
+  model_labels = ai_plaform_serving_args.get('labels', {})
   python_version = _get_caip_python_version(runtime_version)
 
   api = discovery.build('ml', 'v1')
-  body = {'name': model_name, 'regions': regions}
+  body = {'name': model_name, 'regions': regions, 'labels': model_labels}
   parent = 'projects/{}'.format(project_id)
   try:
     api.projects().models().create(body=body, parent=parent).execute()
